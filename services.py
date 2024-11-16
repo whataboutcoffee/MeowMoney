@@ -19,6 +19,7 @@ import keyboards
 class StGrp(StatesGroup):
     operation = State()
     delete_operation = State()
+    delete_ctgr = State()
     # get_table_st = State()
 
 
@@ -47,7 +48,7 @@ async def add_operation(msg_list: list,
         ctgrs_all, vals = validate_categories(r_ctgrs)
         opers: List[tuple] = list(zip(ctgrs_all, vals))
         ctgrs = set(ctgrs_all)
-        new_ctgrs = await DataBase.check_categories(connection, user_id, ctgrs, type_oper)
+        new_ctgrs = await DataBase.check_categories(connection, user_id, ctgrs)
 
         await state.set_state(StGrp.operation)
 
@@ -215,7 +216,8 @@ def _create_plot_bytes(fig: plt.Figure) -> BufferedInputFile:
     fig.savefig(plot, format='png')
     plot.seek(0)
     return BufferedInputFile(file=plot.getvalue(), filename='plot.png')
-        
+
+
 async def bar(
         msg_list: list,
         msg: Message,
@@ -307,7 +309,6 @@ async def pie(
                                             connection,
                                             state,
                                             group_by=True)
-    # print(opers)
     if opers == []:
         await msg.answer(answ.AnswersForTable.only_not_found())
     else:
@@ -316,16 +317,9 @@ async def pie(
             opers_inc = list(filter(lambda x: x[3] == 'income', opers))
             ctgrs_exp, vals_exp, _, _ = list(zip(*opers_exp))
             ctgrs_inc, vals_inc, _, _ = list(zip(*opers_inc))
-            # amount_exp = len(opers_exp)
-            # amount_inc = len(opers_inc)
-
-            # print(f'{opers_exp=}')
-            # print(f'{opers_inc=}')
 
             frac_exp = tuple(i/sum(vals_exp) for i in vals_exp)
             frac_inc = tuple(i/sum(vals_inc) for i in vals_inc)
-            # print(f'{frac_exp=}')
-            # print(f'{frac_inc=}')
             amount_squash_exp = _amount_opers_to_squash(frac_exp, 0.02)
             amount_squash_inc = _amount_opers_to_squash(frac_inc, 0.02)
             misc_opers_exp = []
@@ -346,8 +340,6 @@ async def pie(
                     'income',
                     amount_squash_inc
                 )
-            # print(f'new opers exp {opers_exp}')
-            # print(f'new opers inc{opers_inc}')
             fig_exp, ax_exp = plt.subplots(constrained_layout=True)
             labels_exp = [f'{ctgrs_exp[i].title()}: {answ.convert_num_to_str(vals_exp[i], "letters")}' for i in range(len(vals_exp))]
             labels_inc = [f'{ctgrs_inc[i].title()}: {answ.convert_num_to_str(vals_inc[i], "letters")}' for i in range(len(vals_inc))]
@@ -374,3 +366,29 @@ async def pie(
         except:
             await msg.answer(answ.Errors.general_error)
             raise
+
+
+async def delete_ctgr(
+        msg_list: list,
+        msg: Message,
+        connection: Connection,
+        state: FSMContext
+):
+    try:
+        ctgr: str = msg_list[1]
+    except:
+        await msg.answer(answ.Errors.msg_error)
+    try:
+        user_id = msg.from_user.id
+        new = await DataBase.check_categories(connection, user_id, set(ctgr))
+        if new:
+            raise ValueError('Такой категории нет')
+        await state.set_state(StGrp.delete_ctgr)
+        await state.update_data({'ctgr': ctgr})
+        await msg.answer(text=answ.DelCtgr.del_ctgr(ctgr),
+                         reply_markup=keyboards.DeleteCtgrInlKeyboard.keyboard,
+                         parse_mode=ParseMode.HTML)
+    except ValueError as ex:
+        await msg.answer(str(ex))
+    except:
+        await msg.answer(answ.Errors.general_error)

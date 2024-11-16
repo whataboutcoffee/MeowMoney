@@ -41,7 +41,9 @@ async def process_text(msg: Message, conn: Connection, state: FSMContext):
                  'с': services.bar,
                  'столбчатая диаграмма': services.bar,
                  'к': services.pie,
-                 'круговая диаграмма': services.pie}
+                 'круговая диаграмма': services.pie,
+                 'ук': services.delete_ctgr,
+                 'удалить категорию': services.delete_ctgr}
     if len(msg_list) == 1 and msg_list[0] in func_dict:
         await msg.answer('Что-что ты хочешь сделать? Я понял, какую функцию ты пытаешься использоапть, но мне недостаточно данных')
         return None
@@ -135,3 +137,15 @@ async def process_decline_del_oper(callback: CallbackQuery, state: FSMContext, b
         reply_markup=None
     )
     await callback.message.answer('Удаление операций отменено')
+
+@router.callback_query(F.data == 'confirm_del',
+                       StateFilter(services.StGrp.delete_ctgr),
+                       flags={'database': True})
+async def process_del_ctgr(callback: CallbackQuery, conn: Connection, state: FSMContext, bot: Bot):
+    data: dict = await state.get_data()
+    ctgr: str = data.get('ctgr')
+    await state.clear()
+    user_id = callback.from_user.id
+    await DataBase.del_ctgr_from_db(conn, user_id, ctgr)
+    await callback.message.answer(f'Категория {ctgr} и связанные с ней записи удалены!')
+    

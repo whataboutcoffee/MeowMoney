@@ -68,7 +68,7 @@ def validate_categories(categories: str):
     return data[0], vals # the first set is the categories sequence (an example: ('еда', 'зп')),
     # the second tuple - the values tuple (an example: (2540.45, 5000)
 
-# block of functions for the service for deleting records from the db
+# an internal function for the next func
 def _row_to_fetch(expr: str):
     if '+-' in expr and '=' not in expr:
         raise ValueError('Использование оператора "+-" допустимо только с "="')
@@ -76,7 +76,7 @@ def _row_to_fetch(expr: str):
         raise ValueError(f'Недопустимый оператор сравнения для записи "{expr}"')
     return re.split(r"\s*(=|>|<|[+]-)\s*", expr)
 
-## main fuctions of the module for deleting records from the db
+## main fuctions to get table from db
 def validate_records_to_fetch(input_row: Union[str, None]):
     if input_row == None:
         return list()

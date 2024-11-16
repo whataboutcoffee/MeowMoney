@@ -67,3 +67,7 @@ class DeleteOperInlKeyboard:
     keyboard: InlineKeyboardMarkup = InlineKeyboardMarkup(
         inline_keyboard=[[confirm_del], [decline_del]]
     )
+
+
+class DeleteCtgrInlKeyboard(DeleteOperInlKeyboard):
+    pass

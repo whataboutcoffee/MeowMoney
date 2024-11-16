@@ -234,9 +234,13 @@ class Chart:
             f"<code>{ctgrs_not_found_str}</code>"
         )
 
-# def for_chart(cur_len, max_len):
-#     return f'Слишком много категорий - {cur_len}, допустимо не более {max_len}'
 
+class DelCtgr:
+    @staticmethod
+    def del_ctgr(ctgr: str):
+        return (
+            f'Удаляем категорию <code>{ctgr}</code> и все записи, связанные с ней?'
+        )
 
 class Errors:
     general_error = "Прости, сегодня, кажется, не мой день - у меня не выходит выполнить твой запрос. Попробуй позже :("

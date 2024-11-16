@@ -64,10 +64,10 @@ class DataBase:
     async def check_categories(
             conn: asyncpg.Connection,
             user_id: int,
-            inp_ctgrs: set,
-            type: str
+            inp_ctgrs: set
+            # type: str
             ):
-        db_ctgrs = await conn.fetch("SELECT category FROM categories WHERE user_id = ($1) AND type = ($2)", user_id, type)
+        db_ctgrs = await conn.fetch("SELECT category FROM categories WHERE user_id = ($1)", user_id)
         ctgrs = {record[0] for record in db_ctgrs}
         new_ctgrs = inp_ctgrs.difference(ctgrs)
         if new_ctgrs != set():
@@ -226,6 +226,15 @@ class DataBase:
         return res
 
 
+    @staticmethod
+    @raise_db_error
+    async def del_ctgr_from_db(
+        conn: asyncpg.Connection,
+        user_id: int,
+        ctgr: str
+    ):
+        await conn.execute('DELETE FROM history WHERE user_id = ($1) AND category = ($2)', user_id, ctgr)
+        await conn.execute('DELETE FROM categories WHERE user_id = ($1) AND category = ($2)', user_id, ctgr)
 
 
 
