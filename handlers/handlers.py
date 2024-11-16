@@ -147,5 +147,20 @@ async def process_del_ctgr(callback: CallbackQuery, conn: Connection, state: FSM
     await state.clear()
     user_id = callback.from_user.id
     await DataBase.del_ctgr_from_db(conn, user_id, ctgr)
+    await bot.edit_message_reply_markup(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        reply_markup=None
+    )
     await callback.message.answer(f'Категория {ctgr} и связанные с ней записи удалены!')
-    
+
+@router.callback_query(F.data == 'decline_del',
+                       StateFilter(services.StGrp.delete_ctgr))
+async def process_decline_del_ctgr(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    await state.clear()
+    await bot.edit_message_reply_markup(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        reply_markup=None
+    )
+    await callback.message.answer('Удаление категории отменено')

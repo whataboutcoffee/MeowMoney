@@ -380,7 +380,9 @@ async def delete_ctgr(
         await msg.answer(answ.Errors.msg_error)
     try:
         user_id = msg.from_user.id
-        new = await DataBase.check_categories(connection, user_id, set(ctgr))
+        ctgr_set = set()
+        ctgr_set.add(ctgr)
+        new = await DataBase.check_categories(connection, user_id, ctgr_set)
         if new:
             raise ValueError('Такой категории нет')
         await state.set_state(StGrp.delete_ctgr)
