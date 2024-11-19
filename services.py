@@ -394,3 +394,33 @@ async def delete_ctgr(
         await msg.answer(str(ex))
     except:
         await msg.answer(answ.Errors.general_error)
+
+
+async def get_short_table(msg_list: list,
+        msg: Message,
+        connection: Connection,
+        state: FSMContext
+):
+    opers, _, ctgrs_not_found, dates_db, amount, _ = await _get_table(msg_list,
+                                                                    msg,
+                                                                    connection,
+                                                                    state,
+                                                                    group_by=True)
+    try:
+        if amount > 0:
+            min_date = min(dates_db)
+            max_date = max(dates_db)
+            text = answ.AnswersForTable.with_opers('table',
+                                                amount,
+                                                min_date,
+                                                max_date,
+                                                opers,
+                                                ctgrs_not_found)
+            await msg.answer(text=text + '\n' + answ.AnswersForTable.stats(opers),
+                            parse_mode=ParseMode.HTML)
+        else:
+            text = answ.AnswersForTable.only_not_found()
+            await msg.answer(text=text)
+    except:
+        await msg.answer(answ.Errors.general_error)
+        raise

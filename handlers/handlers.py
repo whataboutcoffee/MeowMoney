@@ -43,7 +43,9 @@ async def process_text(msg: Message, conn: Connection, state: FSMContext):
                  'к': services.pie,
                  'круговая диаграмма': services.pie,
                  'ук': services.delete_ctgr,
-                 'удалить категорию': services.delete_ctgr}
+                 'удалить категорию': services.delete_ctgr,
+                 'кт': services.get_short_table,
+                 'короткая таблица': services.get_short_table}
     if len(msg_list) == 1 and msg_list[0] in func_dict:
         await msg.answer('Что-что ты хочешь сделать? Я понял, какую функцию ты пытаешься использоапть, но мне недостаточно данных')
         return None

@@ -110,47 +110,6 @@ class DataBase:
         args = [(user_id, c, type_oper) for c in ctgrs]
         await conn.executemany("INSERT INTO categories (user_id, category, type) VALUES ($1, $2, $3)", args)
 
-    # @staticmethod
-    # @raise_db_error
-    # async def fetch_old(
-    #     conn: asyncpg.Connection,
-    #     user_id: int,
-    #     date1: datetime.datetime.date,
-    #     date2: datetime.datetime.date,
-    #     ctgrs_lst: List[List[str]]
-    # ) -> List[list]:
-        
-    #     records: list = []
-    #     ctgrs_not_found = set()
-    #     async with conn.transaction():
-    #         for row in ctgrs_lst:
-    #             ctgr = row[0]
-    #             val = row[2]
-    #             if row[3] == '+-':
-    #                 delta = row[4]
-    #                 bot_lim = val - delta
-    #                 top_lim = val + delta
-    #                 r = await conn.fetch("SELECT category, value, oper_id, date, type FROM history WHERE category = ($1) AND value > ($2) AND value < ($3) AND date >= ($4) AND date <= ($5) AND user_id = ($6)", ctgr, bot_lim, top_lim, date1, date2, user_id)
-    #             elif row[1] == row[2] == row[3] == row[4] == None:
-    #                 r = await conn.fetch("SELECT category, value, oper_id, date, type FROM history WHERE category = ($1) AND date >= ($2) AND date <= ($3) AND user_id = ($4)", ctgr, date1, date2, user_id)
-    #             else:
-    #                 if row[1] == '=':
-    #                     operator = '='
-    #                 elif row[1] == '>':
-    #                     operator = '>'
-    #                 elif row[1] == '<':
-    #                     operator = '<' # prevention of sql injections, to transmit for a query only "=", "<" or ">", not anything user wants to transmit
-    #                 else:
-    #                     raise ValueError('Некорректный оператор сравнения, допустимо только "=", "<" или ">"')
-    #                 r = await conn.fetch(f"SELECT category, value, oper_id, date, type FROM history WHERE category = ($1) AND value {operator} ($2) AND date >= ($3) AND date <= ($4) AND user_id = ($5)", ctgr, val, date1, date2, user_id)
-    #             if r != []:
-    #                 records += r
-    #             else:
-    #                 ctgrs_not_found.add(ctgr)
-    #             records.sort(key = lambda x: x[3])
-                
-    #     return [(r[0], r[1], r[3], r[4]) for r in records], [(r[2],) for r in records], ctgrs_not_found
-    
     
     @staticmethod
     @raise_db_error
