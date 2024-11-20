@@ -154,14 +154,14 @@ class DataBase:
             ctgrs.add(ctgr)
         query_str = ' OR '.join(query_lst)
         if group_by:
-            query = 'SELECT category, SUM(value), type FROM history WHERE ' + query_str + ' GROUP BY category, type ORDER BY type DESC, SUM(value)'
+            query = 'SELECT category, SUM(value), MIN(date), MAX(date), type FROM history WHERE ' + query_str + ' GROUP BY category, type ORDER BY type DESC, SUM(value)'
         else:
             query = 'SELECT category, value, oper_id, date, type FROM history WHERE ' + query_str + ' ORDER BY date'
         records = await conn.fetch(query, *args)
         ctgrs_not_found = ctgrs.difference(user_ctgrs)
         
         if group_by:
-            return [(r[0], r[1], None, r[2]) for r in records], [], ctgrs_not_found
+            return [(r[0], r[1], (r[2], r[3]), r[4]) for r in records], [], ctgrs_not_found
         else:
             return [(r[0], r[1], r[3], r[4]) for r in records], [(r[2],) for r in records], ctgrs_not_found
 

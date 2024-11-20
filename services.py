@@ -7,7 +7,8 @@ from aiogram.utils.media_group import MediaGroupBuilder
 from asyncpg import Connection
 from io import BytesIO
 import matplotlib.pyplot as plt
-from numpy import cumsum
+# from numpy import cumsum
+from itertools import chain
 from typing import Any, Iterable, List, Literal
 
 from database.validation import *
@@ -172,8 +173,8 @@ async def _get_table(msg_list: list,
                                                                 user_ctgrs,
                                                                 group_by)
         amount = len(opers)
-        
-        dates_db = [oper[2] for oper in opers] if not group_by else []
+
+        dates_db = [oper[2] for oper in opers] if not group_by else [d for oper in opers for d in oper[2]]
         return opers, oper_ids, ctgrs_not_found, dates_db, amount, user_ctgrs
     except ValueError as ex:
         await msg.answer(str(ex))
@@ -410,8 +411,7 @@ async def get_short_table(msg_list: list,
         if amount > 0:
             min_date = min(dates_db)
             max_date = max(dates_db)
-            text = answ.AnswersForTable.with_opers('table',
-                                                amount,
+            text = answ.AnswersForTable.with_opers_short_table(amount,
                                                 min_date,
                                                 max_date,
                                                 opers,

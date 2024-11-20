@@ -88,6 +88,7 @@ class StartText:
     def successful_agreement(cls) -> str:
         return 'Отлично! Давай начнем. Сперва предлагаю воспользоваться командой /help'
 
+
 class Operation:
     # @staticmethod
     # def _df_to_str(df: DataFrame):
@@ -191,6 +192,29 @@ class AnswersForTable:
             f'{first_row}\n'
             f"Ненайденные категории:\n"
             f"<code>{ctgrs_not_found_str}</code>"
+        )
+    
+    @staticmethod
+    def with_opers_short_table(
+        amount: int,
+        date1: datetime.datetime.date ,
+        date2: datetime.datetime.date,
+        opers: List[tuple],
+        ctgrs_not_found: list
+    ):
+        opers_str = _create_table([[oper[0], oper[1], oper[3]] for oper in opers], ['Категория', 'Сумма', 'Тип'])
+        
+        ctgrs_not_found_str: str = '\n'.join(ctgrs_not_found).title() if ctgrs_not_found != set() else 'Отсутствуют)'
+        
+        if date1 == date2:
+            dates_str = datetime.datetime.strftime(date1, '%d.%m.%Y')
+        else:
+            dates_str = f"с {datetime.datetime.strftime(date1, '%d.%m.%Y')} по {datetime.datetime.strftime(date2, '%d.%m.%Y')}"
+        return (
+            f"Нашел для тебя {amount} запись(-и) {dates_str}:\n"
+            f'<code>{opers_str}</code>\n'
+            f"Ненайденные категории:\n"
+            f"<code>{ctgrs_not_found_str}</code>\n"
         )
     
     @staticmethod
