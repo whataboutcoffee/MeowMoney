@@ -144,12 +144,13 @@ async def _get_table(msg_list: list,
         records_row: str = msg_list[2].lower()
     except:
         await msg.answer(answ.Errors.msg_error)
+        raise
     try:
         user_id: int = msg.from_user.id
         date1, date2 = validate_dates_str(dates_row)
         user_ctgrs = await DataBase.return_all_ctgrs(connection,
                                                             user_id)
-        if records_row != '':
+        if records_row != '...':
             ctgrs_to_fetch_row, except_ctgrs_row = process_records_row(records_row)
             ctgrs_to_fetch = validate_records_to_fetch(ctgrs_to_fetch_row)
             except_ctgrs = change_records(validate_records_to_fetch(except_ctgrs_row))
@@ -183,8 +184,10 @@ async def _get_table(msg_list: list,
         return opers, oper_ids, ctgrs_not_found, dates_db, amount, user_ctgrs
     except ValueError as ex:
         await msg.answer(str(ex))
+        raise
     except:
         await msg.answer(answ.Errors.general_error)
+        raise
     
     
 async def get_table(
