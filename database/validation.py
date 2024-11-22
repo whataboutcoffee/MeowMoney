@@ -21,7 +21,7 @@ def _validate_date(date: str):
             raise ValueError(f'Некорретно введена дата {date} - допустимый формат: дд.мм.гг. Также возможны проблемы с разделителем - допустимо только "-"')
 
 def validate_dates_str(row: str):
-    """Returns a list of datetime.date from a date row from a message"""
+    """Returns a list of datetime.date from the date row from a message"""
     dates: List[str] = [date.strip() for date in row.split('-')]
     dates: List[datetime.date] = [validate_single_date(date) for date in dates]
     if len(dates) == 1: 

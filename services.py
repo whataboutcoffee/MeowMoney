@@ -147,23 +147,28 @@ async def _get_table(msg_list: list,
     try:
         user_id: int = msg.from_user.id
         date1, date2 = validate_dates_str(dates_row)
-        ctgrs_to_fetch_row, except_ctgrs_row = process_records_row(records_row)
-        ctgrs_to_fetch = validate_records_to_fetch(ctgrs_to_fetch_row)
-        except_ctgrs = change_records(validate_records_to_fetch(except_ctgrs_row))
-
-        # Validate categories names before and after "кроме"
-        names_to_fetch = set([r[0] for r in ctgrs_to_fetch])
-        names_except_ctgrs = set([r[0] for r in except_ctgrs])
-        intersection = names_to_fetch.intersection(names_except_ctgrs)
         user_ctgrs = await DataBase.return_all_ctgrs(connection,
-                                                        user_id)
-        if intersection != set():
-            raise ValueError(f'Есть одинаковые категории до и после "кроме": {", ".join(intersection)}')
+                                                            user_id)
+        if records_row != '':
+            ctgrs_to_fetch_row, except_ctgrs_row = process_records_row(records_row)
+            ctgrs_to_fetch = validate_records_to_fetch(ctgrs_to_fetch_row)
+            except_ctgrs = change_records(validate_records_to_fetch(except_ctgrs_row))
 
-        if except_ctgrs != []:
-            names_misc_ctgrs = list(set(user_ctgrs).difference(set(names_except_ctgrs), set(names_to_fetch)))
-            misc_ctgrs = [[c, None, None, None, None] for c in names_misc_ctgrs]
-            ctgrs_to_fetch += misc_ctgrs
+            # Validate categories names before and after "кроме"
+            names_to_fetch = set([r[0] for r in ctgrs_to_fetch])
+            names_except_ctgrs = set([r[0] for r in except_ctgrs])
+            intersection = names_to_fetch.intersection(names_except_ctgrs)
+            
+            if intersection != set():
+                raise ValueError(f'Есть одинаковые категории до и после "кроме": {", ".join(intersection)}')
+
+            if except_ctgrs != []:
+                names_misc_ctgrs = list(set(user_ctgrs).difference(set(names_except_ctgrs), set(names_to_fetch)))
+                misc_ctgrs = [[c, None, None, None, None] for c in names_misc_ctgrs]
+                ctgrs_to_fetch += misc_ctgrs
+        else:
+            ctgrs_to_fetch = [[c, None, None, None, None] for c in user_ctgrs]
+            except_ctgrs = []
         
         opers, oper_ids, ctgrs_not_found = await DataBase.fetch(connection,
                                                                 user_id,
@@ -292,12 +297,6 @@ def _amount_opers_to_squash(vals: tuple, frac: float) -> int:
             return i
     return None
 
-# def _pct(pct, sum_vals: Union[int, float]) -> str:
-#     """
-#     Returns an internal label for a wedge in the pie chart
-#     """    
-#     absolute = answ.convert_num_to_str(pct/100*sum_vals, 'letters')
-#     return f'{pct:.0f}% {absolute}'
 
 async def pie(
         msg_list: list,
@@ -424,3 +423,4 @@ async def get_short_table(msg_list: list,
     except:
         await msg.answer(answ.Errors.general_error)
         raise
+    
