@@ -1,6 +1,6 @@
 import asyncpg
 import datetime
-from typing import Any, List, Tuple, Coroutine
+from typing import Any, List, Coroutine, Literal
 from aiogram.types import Message
 from functools import wraps
 
@@ -78,9 +78,13 @@ class DataBase:
     @raise_db_error
     async def return_all_ctgrs(
             conn: asyncpg.Connection,
-            user_id: int
+            user_id: int,
+            get_type: Literal[True, False] = False
     ) -> list:
         """Returns the list of the categories associated with specified user id"""
+        if get_type:
+            res = await conn.fetch("SELECT category, type FROM categories WHERE user_id = ($1) ORDER BY type DESC, category", user_id)
+            return [(r[0], r[1]) for r in res]
         res = await conn.fetch("SELECT category FROM categories WHERE user_id = ($1)", user_id)
         return set([r[0] for r in res])
 

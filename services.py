@@ -426,4 +426,29 @@ async def get_short_table(msg_list: list,
     except:
         await msg.answer(answ.Errors.general_error)
         raise
-    
+
+
+async def get_ctgrs_list(msg_list: list,
+        msg: Message,
+        connection: Connection,
+        state: FSMContext
+):
+    try:
+        fill: str = msg_list[1]
+        if fill != '...':
+            raise ValueError()
+    except:
+        await msg.answer(answ.Errors.msg_error)
+        raise
+    try:
+        ctgrs_list: list = await DataBase.return_all_ctgrs(connection,
+                                                 msg.from_user.id,
+                                                 get_type=True)
+        await msg.answer(answ.CtgrsList.format_ctgrs_list(ctgrs_list),
+                     parse_mode=ParseMode.HTML)
+    except ValueError as ex:
+        await msg.answer(str(ex))
+        raise
+    except:
+        await msg.answer(answ.Errors.general_error)
+        raise
